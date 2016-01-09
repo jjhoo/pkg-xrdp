@@ -1,0 +1,144 @@
+Avoid displaying a lot of information when starting xrdp and sesman
+
+Index: xrdp-0.8.0/sesman/config.c
+===================================================================
+--- xrdp-0.8.0.orig/sesman/config.c
++++ xrdp-0.8.0/sesman/config.c
+@@ -168,6 +168,7 @@ config_read_globals(int file, struct con
+     }
+ 
+     /* showing read config */
++#if 0
+     g_printf("sesman config:\r\n");
+     g_printf("\tListenAddress:            %s\r\n", cf->listen_address);
+     g_printf("\tListenPort:               %s\r\n", cf->listen_port);
+@@ -175,6 +176,7 @@ config_read_globals(int file, struct con
+     g_printf("\tUserWindowManager:        %s\r\n", cf->user_wm);
+     g_printf("\tDefaultWindowManager:     %s\r\n", cf->default_wm);
+     g_printf("\tAuthFilePath:             %s\r\n", ((cf->auth_file_path) ? (cf->auth_file_path) : ("disabled")));
++#endif
+ 
+     return 0;
+ }
+@@ -293,6 +295,7 @@ config_read_security(int file, struct co
+     }
+ 
+     /* printing security config */
++#if 0
+     g_printf("security configuration:\r\n");
+     g_printf("\tAllowRootLogin:       %i\r\n", sc->allow_root);
+     g_printf("\tMaxLoginRetry:        %i\r\n", sc->login_retry);
+@@ -315,6 +318,7 @@ config_read_security(int file, struct co
+     {
+         g_printf("\tNo TSAdminsGroup defined\r\n");
+     }
++#endif
+ 
+     return 0;
+ }
+@@ -370,12 +374,14 @@ config_read_sessions(int file, struct co
+     }
+ 
+     /* printing security config */
++#if 0
+     g_printf("session configuration:\r\n");
+     g_printf("\tMaxSessions:                 %i\r\n", se->max_sessions);
+     g_printf("\tX11DisplayOffset:            %i\r\n", se->x11_display_offset);
+     g_printf("\tKillDisconnected:            %i\r\n", se->kill_disconnected);
+     g_printf("\tIdleTimeLimit:               %i\r\n", se->max_idle_time);
+     g_printf("\tDisconnectedTimeLimit:       %i\r\n", se->max_idle_time);
++#endif
+ 
+     return 0;
+ }
+@@ -400,12 +406,14 @@ config_read_rdp_params(int file, struct
+     }
+ 
+     /* printing security config */
++#if 0
+     g_printf("X11rdp parameters:\r\n");
+ 
+     for (i = 0; i < cs->rdp_params->count; i++)
+     {
+         g_printf("\tParameter %02d                   %s\r\n", i, (char *)list_get_item(cs->rdp_params, i));
+     }
++#endif
+ 
+     return 0;
+ }
+@@ -430,12 +438,14 @@ config_read_vnc_params(int file, struct
+     }
+ 
+     /* printing security config */
++#if 0
+     g_printf("Xvnc parameters:\r\n");
+ 
+     for (i = 0; i < cs->vnc_params->count; i++)
+     {
+         g_printf("\tParameter %02d                   %s\r\n", i, (char *)list_get_item(cs->vnc_params, i));
+     }
++#endif
+ 
+     return 0;
+ }
+Index: xrdp-0.8.0/common/log.c
+===================================================================
+--- xrdp-0.8.0.orig/common/log.c
++++ xrdp-0.8.0/common/log.c
+@@ -380,11 +380,13 @@ internal_config_read_logging(int file, s
+     /* try to create path if not exist */
+     g_create_path(lc->log_file);
+ 
++#if 0
+     g_printf("logging configuration:\r\n");
+     g_printf("\tLogFile:       %s\r\n", lc->log_file);
+     g_printf("\tLogLevel:      %i\r\n", lc->log_level);
+     g_printf("\tEnableSyslog:  %i\r\n", lc->enable_syslog);
+     g_printf("\tSyslogLevel:   %i\r\n", lc->syslog_level);
++#endif
+     return LOG_STARTUP_OK;
+ }
+ 
+Index: xrdp-0.8.0/sesman/libscp/libscp_init.c
+===================================================================
+--- xrdp-0.8.0.orig/sesman/libscp/libscp_init.c
++++ xrdp-0.8.0/sesman/libscp/libscp_init.c
+@@ -42,8 +42,8 @@ scp_init()
+     //s_log = log;
+ 
+     scp_lock_init();
+-
++#if 0
+     log_message(LOG_LEVEL_WARNING, "[init:%d] libscp initialized", __LINE__);
+-
++#endif
+     return 0;
+ }
+Index: xrdp-0.8.0/sesman/sesman.c
+===================================================================
+--- xrdp-0.8.0.orig/sesman/sesman.c
++++ xrdp-0.8.0/sesman/sesman.c
+@@ -154,7 +154,9 @@ main(int argc, char **argv)
+     if (1 == argc)
+     {
+         /* no options on command line. normal startup */
++#if 0
+         g_printf("starting sesman...\n");
++#endif
+         daemon = 1;
+     }
+     else if ((2 == argc) && ((0 == g_strcasecmp(argv[1], "--nodaemon")) ||
+Index: xrdp-0.8.0/xrdp/xrdp.c
+===================================================================
+--- xrdp-0.8.0.orig/xrdp/xrdp.c
++++ xrdp-0.8.0/xrdp/xrdp.c
+@@ -510,7 +510,9 @@ main(int argc, char **argv)
+ 
+         if (0 != pid)
+         {
++#if 0
+             g_writeln("process %d started ok", pid);
++#endif
+             /* exit, this is the main process */
+             g_deinit();
+             g_exit(0);

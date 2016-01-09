@@ -1,0 +1,15 @@
+Fix logfile path
+
+Index: xrdp-0.8.0/xrdp/xrdp.ini
+===================================================================
+--- xrdp-0.8.0.orig/xrdp/xrdp.ini
++++ xrdp-0.8.0/xrdp/xrdp.ini
+@@ -93,7 +93,7 @@ ls_btn_cancel_width=85
+ ls_btn_cancel_height=30
+ 
+ [Logging]
+-LogFile=xrdp.log
++LogFile=/var/log/xrdp.log
+ LogLevel=DEBUG
+ EnableSyslog=1
+ SyslogLevel=DEBUG

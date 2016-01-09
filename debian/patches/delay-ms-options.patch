@@ -1,0 +1,87 @@
+From 6ddc43c4fc202b96ccff60afa66db81a3ee2f4b7 Mon Sep 17 00:00:00 2001
+From: Anthony Agresta <aagresta@datainnovations.com>
+Date: Fri, 7 Nov 2014 09:32:00 -0500
+Subject: [PATCH 05/49] vnc: Added delay_ms option. Fixes
+ neutrinolabs/xrdp#182
+
+---
+ vnc/vnc.c     |   11 +++++++++++
+ vnc/vnc.h     |    1 +
+ xrdp/xrdp.ini |    4 ++++
+ 3 files changed, 16 insertions(+)
+
+Index: xrdp-0.8.0/vnc/vnc.c
+===================================================================
+--- xrdp-0.8.0.orig/vnc/vnc.c
++++ xrdp-0.8.0/vnc/vnc.c
+@@ -970,6 +970,13 @@ lib_mod_connect(struct vnc *v)
+     v->sck = g_tcp_socket();
+     v->sck_obj = g_create_wait_obj_from_socket(v->sck, 0);
+     v->sck_closed = 0;
++    if (v->delay_ms > 0)
++    {
++        g_sprintf(text, "Waiting %d ms for VNC to start...", v->delay_ms);
++        v->server_msg(v, text, 0);
++        g_sleep(v->delay_ms);
++    }
++    
+     g_sprintf(text, "VNC connecting to %s %s", v->ip, con_port);
+     v->server_msg(v, text, 0);
+     error = g_tcp_connect(v->sck, v->ip, con_port);
+@@ -1322,6 +1329,10 @@ lib_mod_set_param(struct vnc *v, char *n
+     {
+         v->keylayout = g_atoi(value);
+     }
++    else if (g_strcasecmp(name, "delay_ms") == 0)
++    {
++        v->delay_ms = g_atoi(value);
++    }
+ 
+     return 0;
+ }
+Index: xrdp-0.8.0/vnc/vnc.h
+===================================================================
+--- xrdp-0.8.0.orig/vnc/vnc.h
++++ xrdp-0.8.0/vnc/vnc.h
+@@ -115,4 +115,5 @@ struct vnc
+   char* clip_data;
+   int clip_data_size;
+   tbus sck_obj;
++  int delay_ms;
+ };
+Index: xrdp-0.8.0/xrdp/xrdp.ini
+===================================================================
+--- xrdp-0.8.0.orig/xrdp/xrdp.ini
++++ xrdp-0.8.0/xrdp/xrdp.ini
+@@ -136,6 +136,7 @@ username=ask
+ password=ask
+ ip=127.0.0.1
+ port=-1
++#delay_ms=2000
+ 
+ [xrdp3]
+ name=console
+@@ -144,6 +145,7 @@ ip=127.0.0.1
+ port=5900
+ username=na
+ password=ask
++#delay_ms=2000
+ 
+ [xrdp4]
+ name=vnc-any
+@@ -155,6 +157,7 @@ password=ask
+ #pamusername=asksame
+ #pampassword=asksame
+ #pamsessionmng=127.0.0.1
++#delay_ms=2000
+ 
+ [xrdp5]
+ name=sesman-any
+@@ -163,6 +166,7 @@ ip=ask
+ port=-1
+ username=ask
+ password=ask
++#delay_ms=2000
+ 
+ [xrdp6]
+ name=rdp-any

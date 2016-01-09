@@ -1,0 +1,69 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+top_dir := $(shell pwd)
+NUMJOBS = 1
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+ NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+endif
+
+override_dh_auto_configure:
+	mkdir -p $(top_dir)/m4
+	autoreconf -fvi
+	mkdir -p $(top_dir)/build
+
+	cd build && \
+	../configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--enable-fuse
+	find build -name Makefile | while read i; do sed -e 's#\(XRDP_PID_PATH.*/run\)#\1/xrdp#g' -i "$$i"; done
+
+	ln -s ../../../sesman/config.c $(top_dir)/build/sesman/tools/config.c
+
+override_dh_auto_build:
+	cd build && make -j$(NUMJOBS)
+
+override_dh_auto_clean:
+	rm -rf $(top_dir)/build
+
+	for f in configure config.status config.log config.h.in \
+            aclocal.m4 INSTALL config_ac-h.in; do \
+            rm -f $$f; \
+        done
+
+	find -name 'Makefile.in' |xargs --no-run-if-empty rm -f
+
+	rm -f $(top_dir)/build-aux/*
+	rm -f $(top_dir)/m4/lt*.m4
+	rm -f $(top_dir)/m4/libtool.m4
+
+override_dh_auto_install:
+	cd build && make install DESTDIR=$(top_dir)/debian/xrdp
+
+override_dh_makeshlibs:
+	dh_makeshlibs -a -n
+override_dh_installman:
+	dh_installman -a debian/xrdp-keygen.8
+override_dh_installpam:
+	dh_installpam --name=sesman
+	rm -f debian/xrdp/etc/pam.d/xrdp-sesman
+
+override_dh_installdeb:
+	# Clean up some files
+	rm -f debian/xrdp/etc/xrdp/xrdp.sh
+	rm -f debian/xrdp/usr/lib/xrdp/*a
+	rm -f debian/xrdp/usr/bin/xrdp-sestest
+	# Use our own startwm.sh
+	install -m 755 debian/startwm.sh debian/xrdp/etc/xrdp
+	# Move rsakeys to documentation
+	cp xrdp/rsakeys.ini debian/xrdp/usr/share/doc/xrdp
+	dh_installdeb -a
+
+get-orig-source:
+	uscan --repack --compression xz --force-download
+
+%:
+	dh $@

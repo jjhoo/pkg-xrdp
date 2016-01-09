@@ -1,0 +1,13 @@
+Put some generated files to separate directory
+
+--- xrdp-0.8.0.orig/configure.ac
++++ xrdp-0.8.0/configure.ac
+@@ -2,6 +2,8 @@
+ 
+ AC_PREREQ(2.59)
+ AC_INIT([xrdp], [0.8.0], [xrdp-devel@lists.sourceforge.net])
++AC_CONFIG_AUX_DIR([build-aux])
++AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
+ AM_INIT_AUTOMAKE([1.6 foreign])
+ AC_PROG_CC

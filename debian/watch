@@ -1,0 +1,4 @@
+version=2
+
+opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/xrdp-$1\.tar\.gz/ \
+  https://github.com/neutrinolabs/xrdp/tags .*/v?(\d\S*)\.tar\.gz
